@@ -44,6 +44,7 @@
             /* This is our main script */
             // define functions, but they won't run until they're called
 
+            // this function takes some javascript data and generates html by sticking the data into the template
             var generateHtml = function (data) {
                 var template_source = $('#document_to_print').html();
                 var template = Handlebars.compile(template_source);
@@ -51,6 +52,7 @@
                 return html;
             };
 
+            // this function is meant to be used after user clicks the copy button which I set up in jquery document ready function
             var onClickButton = function (e) {
                 // get data from form
                 var data = getObj($('#importAlert_form').serialize());
@@ -85,17 +87,22 @@
                 folder_index++;
             };
 
+            /* ---!!! begin jQuery "on document ready" function !!!--- */
             $(function () {
+
                 // set up handler for when user clicks on copy button
                 $('#copy_button').on('click', onClickButton);
 
+                // set up handler for when user clicks on folder button
                 $('#folder_button').on('click', function (e) {
                     e.preventDefault();
                     addFolder();
                 });
             });
+            /* ---!!! end jQuery "on document ready" function !!!--- */
 
-            // ignore this chinese
+            /* This is a crazy function that you shouldn't bother with
+            */
             function getObj (str) {
                 var match,
                     pl     = /\+/g,  // Regex for replacing addition symbol with a space
