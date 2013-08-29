@@ -1,0 +1,114 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="css/simple.css"/>
+
+        <!-- below I just include the code that other people wrote to make my life easier ... yay opensource -->
+        <script src="js/jquery.js"></script>
+        <script src="js/handlebars.js"></script>
+    </head>
+    <body>
+
+        <form id="importAlert_form">
+            <b>Choose a Drive</b><br>
+            <input type="radio" name="drive" value="theatrical" > Theatrical<br>
+            <input type="radio" name="drive" value="games" > Games<br>
+            <input type="radio" name="drive" value="" > Other
+            <input type="text" name="drive_text" > <br><br>
+
+            <b>Project Name</b> <!--Project will be autocomplete-->
+            <input id="project_field" name="project" type="text" /><br>  <br>
+            <button id="folder_button">Add Folder</button>
+            <div id="folders"></div><br>
+
+            <b>Bin </b>    <input type="text" name="bin_name"><br><br><br>
+
+            <b>   File(s) </b> <input type="text" name="file_name" style="width: 300px; height: 50px;"><br>
+
+            <button id="copy_button">Generate Text</button>
+
+        </form>
+
+        <div id="output"></div>
+
+
+        <!--
+            the following script element is just a template ... we fill in the gaps
+            and the template renders
+        -->
+        <script id="document_to_print" type="text/x-handlebars-template">
+            <p>IMPORTED</p>
+            <p>{{ drive }} >>> {{ project }} >>> {{ bin_name }} >>> {{ file_name }}</p>
+        </script>
+
+        <script>
+            /* This is our main script */
+            // define functions, but they won't run until they're called
+
+            var generateHtml = function (data) {
+                var template_source = $('#document_to_print').html();
+                var template = Handlebars.compile(template_source);
+                var html = template(data);
+                return html;
+            };
+
+            var onClickButton = function (e) {
+                // get data from form
+                var data = getObj($('#importAlert_form').serialize());
+                // generate output from data in template
+                var result = generateHtml(data);
+
+                $('#output').html(result);
+
+                // ignore this, it just keeps the browser from misbehaving when we click the button
+                e.preventDefault();
+            };
+
+            // set up folder index outside of the addFolder fn so it exists outside the life of the addFolder execution
+            var folder_index = 0;
+            // function to build out the html for a folder and then stick it in the 'folders' div
+            var addFolder = function () {
+                // create the folder id input (making it unique using the folder_index variable)
+                var $folder_id = $('<input>').attr({
+                    name: 'folder_id_' + folder_index,
+                    type: 'text'
+                });
+                // create the folder name input
+                // var $folder_name = $('<input>').attr({
+                //     name: 'folder_name_' + folder_index,
+                //     type: 'text'
+                // });
+                // create a div to hold the inputs just for structure
+                var $new_folder = $('<div>').append($folder_id)//.append($folder_name);
+                // stick the newly created html (in the form of jquery objects) into the page
+                $('#folders').append($new_folder);
+                // increment folder index
+                folder_index++;
+            };
+
+            $(function () {
+                // set up handler for when user clicks on copy button
+                $('#copy_button').on('click', onClickButton);
+
+                $('#folder_button').on('click', function (e) {
+                    e.preventDefault();
+                    addFolder();
+                });
+            });
+
+            // ignore this chinese
+            function getObj (str) {
+                var match,
+                    pl     = /\+/g,  // Regex for replacing addition symbol with a space
+                    search = /([^&=]+)=?([^&]*)/g,
+                    decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+                    query  = str;
+
+                urlParams = {};
+                while (match = search.exec(query))
+                   urlParams[decode(match[1])] = decode(match[2]);
+                return urlParams;
+            }
+
+        </script>
+    </body>
+</html>
